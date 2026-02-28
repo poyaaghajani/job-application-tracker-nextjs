@@ -1,7 +1,7 @@
-import { DashboardImageTab } from "@/components/dashboard-image-tab";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Briefcase, CheckCircle2, TrendingUp } from "lucide-react";
 import Link from "next/link";
+import { DashboardImageTab } from "../../components/dashboard-image-tab";
 
 export default function Home() {
   return (

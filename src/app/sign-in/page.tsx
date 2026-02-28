@@ -12,26 +12,72 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import Link from "next/link";
+import {useState} from "react";
+import {useRouter} from "next/navigation";
+import {signIn} from "@/src/lib/auth/auth-client";
 
 export default function SignIn() {
+
+  // inputs state
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+
+  // form states
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  const router = useRouter();
+
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+
+    setError("");
+    setLoading(true);
+
+    try {
+      const result = await signIn.email({
+        email,
+        password,
+      });
+
+      if (result.error) {
+        setError(result.error.message ?? "Failed to sign in");
+      } else {
+        router.push("/dashboard");
+      }
+    } catch (e) {
+      setError("Unexpected error occurred " + `${e}`);
+    } finally {
+      setLoading(false);
+    }
+  }
+
   return (
     <div className="flex min-h-[calc(100vh-4rem)] items-center justify-center p-4">
       <Card className="w-full max-w-md border-gray-200 ">
         <CardHeader className="space-y-1">
           <CardTitle className="text-2xl font-bold">Sign In</CardTitle>
           <CardDescription className="text-gray-600">
-            Enter your credantials to access your account
+            Enter your credentials to access your account
           </CardDescription>
         </CardHeader>
 
-        <form className="space-y-4">
+        <form className="space-y-4" onSubmit={handleSubmit}>
           <CardContent className="space-y-4">
+            {error && (
+                <div className="rounded-md bg-destructive/15 p-3 text-sm text-destructive">
+                  {error}
+                </div>
+            )}
+
             <div className="space-y-2">
               <Label htmlFor="email">Email</Label>
               <Input
                 id="email"
                 type="email"
                 placeholder="jhon@example.com"
+                value={email}
+                onChange={(e)=> setEmail(e.target.value)}
                 required
                 className="border-gray-300 focus:border-primary focus:ring-primary"
               ></Input>
@@ -44,6 +90,8 @@ export default function SignIn() {
                 type="password"
                 placeholder="******"
                 maxLength={8}
+                value={password}
+                onChange={(e)=> setPassword(e.target.value)}
                 required
                 className="border-gray-300 focus:border-primary focus:ring-primary"
               ></Input>
@@ -51,8 +99,9 @@ export default function SignIn() {
           </CardContent>
 
           <CardFooter className="flex flex-col space-y-4">
-            <Button type="submit" className="w-full">
-              Sign In
+            <Button type="submit" className="w-full" disabled={loading}>
+              {loading? "Loading...": "Sign In"}
+
             </Button>
             <div className="flex space-x-2 text-sm text-gray-600">
               <p>Don not have an account?</p>
